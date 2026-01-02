@@ -6,5 +6,8 @@ const router = Router();
 router.get("/hello", hello);
 router.get("/add", addQuery);
 router.post("/", addBody);
+router.get("/", (req, res) => {
+    res.send("Test route is working");
+});
 
-export default Router;
+export default router;
