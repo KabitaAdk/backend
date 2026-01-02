@@ -26,4 +26,9 @@ export const login = async (req:Request, res:Response) =>{
     });
 
     res.json({message: "Login successful"});
+};
+
+export const getallUser = async (req:Request, res:Response) => {
+    const users = await prisma.user.findMany({});
+    res.json({message: "User fetch successfully", data:users} );
 }

@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes";
 import testRoutes from "./routes/test.routes";
+import { getallUser } from "./controllers/auth.controller";
 
 dotenv.config();
 
@@ -22,5 +23,6 @@ app.use(
 
 app.use("/", testRoutes);
 app.use("/api/auth", authRoutes);
+app.get("/users", getallUser);
 
 export default app;
