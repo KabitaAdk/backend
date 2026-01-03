@@ -67,3 +67,15 @@ export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
   res.cookie("token", result.token, authCookieOptions);
   res.json(result);
 });
+
+export const me = asyncHandler(async (req: Request, res: Response) => {
+  if (!req.user) {
+    res.status(401).json({ message: "Unauthorized" });
+    return;
+  }
+  res.json({ user: req.user });
+});
+
+export const adminOnly = asyncHandler(async (_req: Request, res: Response) => {
+  res.json({ message: "ok" });
+});
