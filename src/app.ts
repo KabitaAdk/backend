@@ -1,10 +1,11 @@
+import "./types/express";
+
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes";
 import testRoutes from "./routes/test.routes";
-import { env } from "./config/env";
 import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
