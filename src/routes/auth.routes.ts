@@ -6,6 +6,7 @@ import { authenticate, authorizeRoles } from "../middlewares/auth.middleware";
 const router = Router();
 
 router.post("/register", register);
+//router.get("/users", getallUser);
 router.post("/login", login);
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp", verifyOtp);
