@@ -1,29 +1,40 @@
-import {Request, Response} from "express";
-import {registerUser} from "../services/auth.service";
-import bcrypt from "bcrypt";
-import prisma from "../lib/prisma";
-import { generateToken } from "../utils/jwt";
+import type { CookieOptions, Request, Response } from "express";
+import { authService } from "../services/auth.service";
+import { asyncHandler } from "../utils/async-handler";
+import { env } from "../config/env";
 
-export const register = async (req: Request, res: Response) => {
-    const {name, email, password} = req.body;
-    const user = await registerUser (name, email, password);
-    res.status(201).json(user);
+const authCookieOptions: CookieOptions = {
+  httpOnly: true,
+  secure: env.nodeEnv === "production",
+  sameSite: "lax",
 };
 
-export const login = async (req:Request, res:Response) =>{
-    const {email, password} = req.body;
+export const register = asyncHandler(async (req: Request, res: Response) => {
+  const { name, email, password } = req.body as {
+    name?: string;
+    email?: string;
+    password?: string;
+  };
 
-    const user = await prisma.user.findUnique({where: {email}});
-    if(!user) return res.status(401).json({message: "Invalid Credentials"});
+  const result = await authService.register({
+    name: name ?? "",
+    email: email ?? "",
+    password: password ?? "",
+  });
 
-    const isMatch = await bcrypt.compare (password, user.password);
-    if (!isMatch) return res.status(401).json({message:"Invalid Credentials"});
+  res.cookie("token", result.token, authCookieOptions);
+  res.status(201).json(result);
+});
 
-    const token = generateToken(user.id);
-    res.cookie("token", token, {
-        httpOnly: true,
-        secure: false
-    });
+export const login = asyncHandler(async (req: Request, res: Response) => {
+  const { email, password } = req.body as { email?: string; password?: string };
 
-    res.json({message: "Login successful"});
-}
+  const result = await authService.login({
+    email: email ?? "",
+    password: password ?? "",
+  });
+
+  res.cookie("token", result.token, authCookieOptions);
+  res.json(result);
+});
+
