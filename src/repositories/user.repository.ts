@@ -10,6 +10,10 @@ export type PublicUser = {
 };
 
 type UserWithPassword = PublicUser & { password: string };
+type UserForPasswordReset = PublicUser & {
+  passwordResetOtpHash: string | null;
+  passwordResetOtpExpiresAt: Date | null;
+};
 
 export const userRepository = {
   findPublicByEmail: async (email: string): Promise<PublicUser | null> => {
@@ -49,5 +53,35 @@ export const userRepository = {
       select: { id: true, name: true, email: true, role: true, createdAt: true },
     });
   },
-};
 
+  findForPasswordResetByEmail: async (email: string): Promise<UserForPasswordReset | null> => {
+    return prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        passwordResetOtpHash: true,
+        passwordResetOtpExpiresAt: true,
+      },
+    });
+  },
+
+  setPasswordResetOtp: async (userId: string, otpHash: string, expiresAt: Date) => {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordResetOtpHash: otpHash, passwordResetOtpExpiresAt: expiresAt },
+      select: { id: true },
+    });
+  },
+
+  updatePasswordAndClearPasswordReset: async (userId: string, passwordHash: string) => {
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: passwordHash, passwordResetOtpHash: null, passwordResetOtpExpiresAt: null },
+      select: { id: true },
+    });
+  },
+};

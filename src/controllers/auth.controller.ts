@@ -38,3 +38,32 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   res.json(result);
 });
 
+export const forgotPassword = asyncHandler(async (req: Request, res: Response) => {
+  const { email } = req.body as { email?: string };
+
+  const result = await authService.requestPasswordReset({ email: email ?? "" });
+
+  if ("otp" in result && typeof result.otp === "string") {
+    // eslint-disable-next-line no-console
+    console.log(`[auth] Password reset OTP for ${email}: ${result.otp}`);
+  }
+
+  res.json(result);
+});
+
+export const verifyOtp = asyncHandler(async (req: Request, res: Response) => {
+  const { email, otp, newPassword } = req.body as {
+    email?: string;
+    otp?: string;
+    newPassword?: string;
+  };
+
+  const result = await authService.verifyOtpAndResetPassword({
+    email: email ?? "",
+    otp: otp ?? "",
+    newPassword: newPassword ?? "",
+  });
+
+  res.cookie("token", result.token, authCookieOptions);
+  res.json(result);
+});
