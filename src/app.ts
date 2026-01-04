@@ -1,13 +1,12 @@
+import "./types/express";
+
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
 import authRoutes from "./routes/auth.routes";
 import testRoutes from "./routes/test.routes";
-import { getallUser } from "./controllers/auth.controller";
-
-dotenv.config();
+import { errorMiddleware } from "./middlewares/error.middleware";
 
 const app = express();
 
@@ -16,13 +15,13 @@ app.use(cookieParser());
 
 app.use(
   cors({
-    origin:true,
+    origin: true,
     credentials: true,
   })
 );
 
 app.use("/", testRoutes);
 app.use("/api/auth", authRoutes);
-app.get("/users", getallUser);
+app.use(errorMiddleware);
 
 export default app;
